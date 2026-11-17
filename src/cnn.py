@@ -51,7 +51,7 @@ class LeafDataset(Dataset):
         return self.tf(img), self.labels[i]
 
 
-def _loader(paths, labels, tf, shuffle, degrade=None, bs=32, workers=2):
+def _loader(paths, labels, tf, shuffle, degrade=None, bs=32, workers=1):
     return DataLoader(LeafDataset(paths, labels, tf, degrade), batch_size=bs, shuffle=shuffle,
                       num_workers=workers, persistent_workers=workers > 0)
 
@@ -85,9 +85,18 @@ def train(df, num_classes, epochs=10, out_name="mobilenetv2_best.pt", log=print)
         opt, lambda s: (s + 1) / warm if s < warm else 0.5 * (1 + np.cos(np.pi * (s - warm) / max(1, steps - warm))))
     crit = nn.CrossEntropyLoss(label_smoothing=0.1)
 
-    history, best = [], -1.0
+    history, best, start = [], -1.0, 1
     path = os.path.join(MODEL_DIR, out_name)
-    for ep in range(1, epochs + 1):
+    resume = os.path.join(MODEL_DIR, "cnn_resume_state.pt")
+    if os.path.exists(resume):  # continue an interrupted run
+        st = torch.load(resume, map_location="cpu", weights_only=False)
+        model.load_state_dict(st["model"])
+        opt.load_state_dict(st["opt"])
+        sched.load_state_dict(st["sched"])
+        history, best, start = st["history"], st["best"], st["epoch"] + 1
+        torch.set_rng_state(st["rng"])
+        log(f"resumed after epoch {st['epoch']}")
+    for ep in range(start, epochs + 1):
         model.train()
         t, tot, correct, n = time.time(), 0.0, 0, 0
         for x, y in tl:
@@ -100,6 +109,8 @@ def train(df, num_classes, epochs=10, out_name="mobilenetv2_best.pt", log=print)
             tot += loss.item() * len(y)
             correct += (out.argmax(1) == y).sum().item()
             n += len(y)
+            if (n // len(y)) % 50 == 0:
+                log(f"  epoch {ep} batch {n // len(y)}/{len(tl)} loss {tot / n:.4f} acc {correct / n:.4f}")
         yv, pv = predict(model, vl)
         val_loss = float(nn.functional.nll_loss(torch.log(torch.tensor(pv) + 1e-9), torch.tensor(yv)))
         val_acc = float((pv.argmax(1) == yv).mean())
@@ -111,6 +122,11 @@ def train(df, num_classes, epochs=10, out_name="mobilenetv2_best.pt", log=print)
         if val_f1 > best:
             best = val_f1
             torch.save(model.state_dict(), path)
+        torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
+                    "history": history, "best": best, "epoch": ep, "rng": torch.get_rng_state()}, resume + ".tmp")
+        os.replace(resume + ".tmp", resume)
+    if os.path.exists(resume):
+        os.remove(resume)
     return history, path
 
 

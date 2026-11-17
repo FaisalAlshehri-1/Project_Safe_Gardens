@@ -86,8 +86,8 @@ def fig_preprocessing(paths):
 
 
 def fig_segmentation(paths):
-    cols = ["Pre-processed", "a* channel", "Otsu (HSV-S)", "K-means (a*b*)",
-            "Leaf mask (+morph.)", "Lesion mask", "Overlay"]
+    cols = ["Pre-processed", "a* channel", "Otsu\n(HSV-S)", "K-means\n(a*b*)",
+            "Leaf mask\n(+ morphology)", "Lesion\nmask", "Overlay"]
     fig, axes = plt.subplots(len(paths), len(cols), figsize=(7.2, 1.15 * len(paths) + 0.3))
     for r, p in enumerate(paths):
         x = preprocess(load_rgb(p))

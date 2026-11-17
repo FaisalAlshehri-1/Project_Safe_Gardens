@@ -51,18 +51,38 @@ def stack(z, groups):
     return np.hstack([z[g] for g in groups]).astype(np.float32)
 
 
+class _PCASVC(SVC):
+    """RBF-SVM whose gamma is set relative to the PCA output dimension."""
+
+    def __init__(self, C=1.0, gamma_factor=1.0):
+        super().__init__(C=C, kernel="rbf", decision_function_shape="ovr", random_state=SEED)
+        self.gamma_factor = gamma_factor
+
+    def fit(self, X, y, sample_weight=None):
+        self.gamma = self.gamma_factor / (X.shape[1] * X.var())
+        return super().fit(X, y, sample_weight)
+
+
 def svm_pipeline(C, gamma, n_feat):
     steps = [StandardScaler()]
     if n_feat > 400:                       # PCA keeps 99% variance of the large HOG block
         steps.append(PCA(n_components=0.99, svd_solver="full", random_state=SEED))
-    steps.append(SVC(C=C, gamma=gamma, kernel="rbf", decision_function_shape="ovr", random_state=SEED))
+    if isinstance(gamma, str) and gamma.startswith("pca:"):
+        steps.append(_PCASVC(C=C, gamma_factor=float(gamma[4:])))
+    else:
+        steps.append(SVC(C=C, gamma=gamma, kernel="rbf", decision_function_shape="ovr", random_state=SEED))
     return make_pipeline(*steps)
 
 
 def fit_svm(Xtr, ytr, Xva, yva):
+    """Grid search on the validation split: C in {10, 30, 100}, gamma = f / d with
+    f in {0.25, 0.5, 1} (d = number of input features after scaling/PCA;
+    f = 1 corresponds to sklearn's gamma='scale' for standardised data)."""
     best = (-1, None)
-    for C in (3, 10, 30):
-        for gamma in ("scale",):
+    d = Xtr.shape[1] if Xtr.shape[1] <= 400 else None
+    for C in (10, 30, 100):
+        for f in (0.25, 0.5, 1.0):
+            gamma = f / d if d else f"pca:{f}"
             m = svm_pipeline(C, gamma, Xtr.shape[1]).fit(Xtr, ytr)
             f = f1_score(yva, m.predict(Xva), average="macro")
             if f > best[0]:
@@ -118,7 +138,7 @@ def main():
 
     groups = FEATURE_SETS[best_set]
     best_hp = next(r for r in results["feature_groups"] if r["features"] == best_set and r["classifier"] == "SVM (RBF)")
-    C = best_hp["C"]
+    C, G = best_hp["C"], best_hp["gamma"]
 
     # ---------------- E2: ablation of preprocessing and leaf mask ------------
     trained = {"full": best_svm}
@@ -127,7 +147,7 @@ def main():
                        ("no_mask", "Without leaf segmentation mask")):
         z = load(cfg)
         X = stack(z, groups)
-        m = trained.get(cfg) or svm_pipeline(C, "scale", X.shape[1]).fit(X[tr], y[tr])
+        m = trained.get(cfg) or svm_pipeline(C, G, X.shape[1]).fit(X[tr], y[tr])
         trained[cfg] = m
         met, _ = evaluate(m, X[te], y[te])
         row = {"setting": label, "features": best_set, **met}

@@ -6,7 +6,7 @@ Outputs
   results/tables/cnn_history.json     per-epoch training log
   data/cache/pred_cnn_<setting>.npz   test-set labels and class probabilities
 
-Usage:  python scripts/train_cnn.py --epochs 12
+Usage:  python scripts/train_cnn.py --epochs 8
 """
 import argparse
 import json
@@ -26,7 +26,7 @@ from preprocessing import DEGRADATIONS  # noqa: E402
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--epochs", type=int, default=12)
+    ap.add_argument("--epochs", type=int, default=8)
     ap.add_argument("--skip-train", action="store_true")
     a = ap.parse_args()
     df, classes = get_split()

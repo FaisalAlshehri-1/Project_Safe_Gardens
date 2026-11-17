@@ -1,0 +1,6 @@
+{
+ "healthy_median": 0.015957526612664343,
+ "diseased_median": 0.07119130303487846,
+ "auc_lesion_ratio_healthy_vs_diseased": 0.7080525255332453,
+ "n": 1685
+}

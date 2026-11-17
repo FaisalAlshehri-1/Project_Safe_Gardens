@@ -2,6 +2,7 @@ data/plantvillage/
 data/plantvillage
 data/cache/
 data/weights/
+models/cnn_resume_state.pt
 __pycache__/
 *.pyc
 .ipynb_checkpoints/

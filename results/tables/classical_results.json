@@ -1,0 +1,288 @@
+{
+ "feature_groups": [
+  {
+   "features": "Colour",
+   "dims": 78,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.8172106824925816,
+   "macro_f1": 0.81471718693656,
+   "weighted_f1": 0.8171205981266086,
+   "classify_ms_per_img": 0.5143708928048788,
+   "C": 100,
+   "gamma": 0.00641025641025641,
+   "val_macro_f1": 0.7999058182157891,
+   "fit_seconds": 19.333849668502808
+  },
+  {
+   "features": "Colour",
+   "dims": 78,
+   "classifier": "Random Forest",
+   "accuracy": 0.7501483679525223,
+   "macro_f1": 0.7438731209971714,
+   "weighted_f1": 0.7464269353777522,
+   "classify_ms_per_img": 0.14214770376505412,
+   "n_estimators": 500,
+   "val_macro_f1": 0.7421979155455408,
+   "fit_seconds": 18.133731365203857
+  },
+  {
+   "features": "Texture (GLCM+LBP)",
+   "dims": 64,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.713946587537092,
+   "macro_f1": 0.7153888695837411,
+   "weighted_f1": 0.7150842136136305,
+   "classify_ms_per_img": 0.4730868410285927,
+   "C": 30,
+   "gamma": 0.0078125,
+   "val_macro_f1": 0.6990846258261224,
+   "fit_seconds": 14.351541996002197
+  },
+  {
+   "features": "Texture (GLCM+LBP)",
+   "dims": 64,
+   "classifier": "Random Forest",
+   "accuracy": 0.597626112759644,
+   "macro_f1": 0.5866736477416306,
+   "weighted_f1": 0.5862675558272926,
+   "classify_ms_per_img": 0.1627579640917679,
+   "n_estimators": 500,
+   "val_macro_f1": 0.5834112120905295,
+   "fit_seconds": 23.18036913871765
+  },
+  {
+   "features": "Shape",
+   "dims": 8,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.4943620178041543,
+   "macro_f1": 0.4828070067402022,
+   "weighted_f1": 0.484328960359424,
+   "classify_ms_per_img": 0.3020828484781418,
+   "C": 100,
+   "gamma": 0.0625,
+   "val_macro_f1": 0.4775796272462126,
+   "fit_seconds": 11.991775751113892
+  },
+  {
+   "features": "Shape",
+   "dims": 8,
+   "classifier": "Random Forest",
+   "accuracy": 0.47181008902077154,
+   "macro_f1": 0.4593264545084896,
+   "weighted_f1": 0.4598508551818971,
+   "classify_ms_per_img": 0.13827683310126693,
+   "n_estimators": 500,
+   "val_macro_f1": 0.4377368038227847,
+   "fit_seconds": 7.351621866226196
+  },
+  {
+   "features": "HOG",
+   "dims": 1764,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.6985163204747774,
+   "macro_f1": 0.697730167440972,
+   "weighted_f1": 0.6966065644013439,
+   "classify_ms_per_img": 2.947530548367373,
+   "C": 10,
+   "gamma": "pca:1.0",
+   "val_macro_f1": 0.6931532210510417,
+   "fit_seconds": 211.10040163993835
+  },
+  {
+   "features": "HOG",
+   "dims": 1764,
+   "classifier": "Random Forest",
+   "accuracy": 0.5578635014836796,
+   "macro_f1": 0.5292837198240811,
+   "weighted_f1": 0.5313778709930662,
+   "classify_ms_per_img": 0.14925257742228068,
+   "n_estimators": 500,
+   "val_macro_f1": 0.5171970815389455,
+   "fit_seconds": 93.5416796207428
+  },
+  {
+   "features": "Colour+Texture",
+   "dims": 142,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.8902077151335311,
+   "macro_f1": 0.8890396513142693,
+   "weighted_f1": 0.8898344475759757,
+   "classify_ms_per_img": 0.7711639743884169,
+   "C": 30,
+   "gamma": 0.0035211267605633804,
+   "val_macro_f1": 0.8785917011714922,
+   "fit_seconds": 20.676076650619507
+  },
+  {
+   "features": "Colour+Texture",
+   "dims": 142,
+   "classifier": "Random Forest",
+   "accuracy": 0.8445103857566766,
+   "macro_f1": 0.8413370336255626,
+   "weighted_f1": 0.8424643782614324,
+   "classify_ms_per_img": 0.0926238492971358,
+   "n_estimators": 500,
+   "val_macro_f1": 0.8083386638275799,
+   "fit_seconds": 13.919092655181885
+  },
+  {
+   "features": "Colour+Texture+Shape",
+   "dims": 150,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.9074183976261128,
+   "macro_f1": 0.9075852660000563,
+   "weighted_f1": 0.9073135523085162,
+   "classify_ms_per_img": 0.7332399973883473,
+   "C": 100,
+   "gamma": 0.0033333333333333335,
+   "val_macro_f1": 0.894206823316449,
+   "fit_seconds": 18.565441608428955
+  },
+  {
+   "features": "Colour+Texture+Shape",
+   "dims": 150,
+   "classifier": "Random Forest",
+   "accuracy": 0.8646884272997033,
+   "macro_f1": 0.8625420577580021,
+   "weighted_f1": 0.8634106342826017,
+   "classify_ms_per_img": 0.09874292933976261,
+   "n_estimators": 500,
+   "val_macro_f1": 0.8366386443559503,
+   "fit_seconds": 24.37972927093506
+  },
+  {
+   "features": "All (C+T+S+HOG)",
+   "dims": 1914,
+   "classifier": "SVM (RBF)",
+   "accuracy": 0.858160237388724,
+   "macro_f1": 0.8593990948042256,
+   "weighted_f1": 0.8580587381924963,
+   "classify_ms_per_img": 5.141547879408658,
+   "C": 10,
+   "gamma": "pca:0.5",
+   "val_macro_f1": 0.8495698205573788,
+   "fit_seconds": 229.30718994140625
+  },
+  {
+   "features": "All (C+T+S+HOG)",
+   "dims": 1914,
+   "classifier": "Random Forest",
+   "accuracy": 0.8462908011869437,
+   "macro_f1": 0.8428186314108504,
+   "weighted_f1": 0.8426001908050885,
+   "classify_ms_per_img": 0.11825830363378327,
+   "n_estimators": 500,
+   "val_macro_f1": 0.8235265832970119,
+   "fit_seconds": 61.5899920463562
+  }
+ ],
+ "ablation": [
+  {
+   "setting": "Full pipeline (pre-processing + leaf mask)",
+   "features": "Colour+Texture+Shape",
+   "accuracy": 0.9074183976261128,
+   "macro_f1": 0.9075852660000563,
+   "weighted_f1": 0.9073135523085162,
+   "classify_ms_per_img": 0.7329316804246309
+  },
+  {
+   "setting": "Without pre-processing",
+   "features": "Colour+Texture+Shape",
+   "accuracy": 0.9091988130563798,
+   "macro_f1": 0.9099951108539647,
+   "weighted_f1": 0.909592990255126,
+   "classify_ms_per_img": 0.6768593094822914
+  },
+  {
+   "setting": "Without leaf segmentation mask",
+   "features": "Colour+Texture+Shape",
+   "accuracy": 0.9465875370919882,
+   "macro_f1": 0.9470777740578609,
+   "weighted_f1": 0.9466041703894033,
+   "classify_ms_per_img": 0.6031540098105411
+  }
+ ],
+ "robustness": [
+  {
+   "degradation": "clean",
+   "pipeline": "with pre-processing",
+   "accuracy": 0.9074183976261128,
+   "macro_f1": 0.9075852660000563,
+   "weighted_f1": 0.9073135523085162,
+   "classify_ms_per_img": 0.6382572898525158
+  },
+  {
+   "degradation": "clean",
+   "pipeline": "without pre-processing",
+   "accuracy": 0.9091988130563798,
+   "macro_f1": 0.9099951108539647,
+   "weighted_f1": 0.909592990255126,
+   "classify_ms_per_img": 0.7289744979903676
+  },
+  {
+   "degradation": "gaussian_noise",
+   "pipeline": "with pre-processing",
+   "accuracy": 0.8373887240356083,
+   "macro_f1": 0.8378548302909519,
+   "weighted_f1": 0.8372897871085807,
+   "classify_ms_per_img": 0.6750273775276161
+  },
+  {
+   "degradation": "gaussian_noise",
+   "pipeline": "without pre-processing",
+   "accuracy": 0.050445103857566766,
+   "macro_f1": 0.03405456944358546,
+   "weighted_f1": 0.03455983011782263,
+   "classify_ms_per_img": 0.7701653047555985
+  },
+  {
+   "degradation": "gaussian_blur",
+   "pipeline": "with pre-processing",
+   "accuracy": 0.5050445103857567,
+   "macro_f1": 0.4633151299410928,
+   "weighted_f1": 0.4689538513627342,
+   "classify_ms_per_img": 0.7501822904592452
+  },
+  {
+   "degradation": "gaussian_blur",
+   "pipeline": "without pre-processing",
+   "accuracy": 0.10326409495548962,
+   "macro_f1": 0.05121862654863315,
+   "weighted_f1": 0.051978546823835424,
+   "classify_ms_per_img": 0.7366067224157317
+  },
+  {
+   "degradation": "low_light",
+   "pipeline": "with pre-processing",
+   "accuracy": 0.11038575667655787,
+   "macro_f1": 0.09890514865878997,
+   "weighted_f1": 0.10029991408126944,
+   "classify_ms_per_img": 0.78441523656647
+  },
+  {
+   "degradation": "low_light",
+   "pipeline": "without pre-processing",
+   "accuracy": 0.09910979228486647,
+   "macro_f1": 0.07492944663273583,
+   "weighted_f1": 0.07604115949078832,
+   "classify_ms_per_img": 0.7735451887906128
+  },
+  {
+   "degradation": "uneven_illumination",
+   "pipeline": "with pre-processing",
+   "accuracy": 0.5732937685459941,
+   "macro_f1": 0.5615655238289469,
+   "weighted_f1": 0.5649937637658697,
+   "classify_ms_per_img": 0.7335893478167164
+  },
+  {
+   "degradation": "uneven_illumination",
+   "pipeline": "without pre-processing",
+   "accuracy": 0.5459940652818991,
+   "macro_f1": 0.5216710845507238,
+   "weighted_f1": 0.5245705722438341,
+   "classify_ms_per_img": 0.7468734367664914
+  }
+ ],
+ "best_feature_set": "Colour+Texture+Shape"
+}
