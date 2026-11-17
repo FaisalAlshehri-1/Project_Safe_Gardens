@@ -1,0 +1,7 @@
+data/plantvillage/
+data/plantvillage
+data/cache/
+data/weights/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
