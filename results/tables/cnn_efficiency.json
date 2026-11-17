@@ -1,0 +1,5 @@
+{
+ "latency_ms_per_image_1thread": 15.281696319580078,
+ "checkpoint_mb": 9.331339,
+ "parameters": 2272550
+}

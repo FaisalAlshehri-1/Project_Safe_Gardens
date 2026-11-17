@@ -23,6 +23,7 @@ from PIL import Image
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms as T
+from torchvision.transforms import v2
 
 from config import CNN_SIZE, MODEL_DIR, PRETRAINED_MNV2, SEED
 from mobilenetv2 import build_mobilenetv2
@@ -51,6 +52,43 @@ class LeafDataset(Dataset):
         return self.tf(img), self.labels[i]
 
 
+# Fast training input path: images are decoded once into a uint8 memory-mapped
+# array (N x 3 x 256 x 256) and augmented as tensors with torchvision.transforms.v2.
+TRAIN_TF_T = v2.Compose([
+    v2.RandomResizedCrop(CNN_SIZE, scale=(0.7, 1.0), antialias=True),
+    v2.RandomHorizontalFlip(), v2.RandomVerticalFlip(), v2.RandomRotation(20),
+    v2.ColorJitter(0.2, 0.2, 0.2),
+    v2.ToDtype(torch.float32, scale=True), v2.Normalize(MEAN, STD)])
+EVAL_TF_T = v2.Compose([v2.Resize((CNN_SIZE, CNN_SIZE), antialias=True),
+                        v2.ToDtype(torch.float32, scale=True), v2.Normalize(MEAN, STD)])
+
+
+def image_cache(paths, name):
+    """Decode images once into data/cache/<name>.u8 (memory-mapped uint8, CHW)."""
+    from config import CACHE_DIR
+    f = os.path.join(CACHE_DIR, f"{name}_{len(paths)}.u8")
+    shape = (len(paths), 3, 256, 256)
+    if not os.path.exists(f):
+        mm = np.lib.format.open_memmap(f + ".tmp.npy", mode="w+", dtype=np.uint8, shape=shape)
+        for i, p in enumerate(paths):
+            mm[i] = np.asarray(Image.open(p).convert("RGB").resize((256, 256))).transpose(2, 0, 1)
+        mm.flush()
+        del mm
+        os.replace(f + ".tmp.npy", f)
+    return np.load(f, mmap_mode="r") if f.endswith(".npy") else np.lib.format.open_memmap(f, mode="r")
+
+
+class CachedDataset(Dataset):
+    def __init__(self, arr, labels, tf):
+        self.arr, self.labels, self.tf = arr, list(labels), tf
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, i):
+        return self.tf(torch.from_numpy(np.array(self.arr[i]))), self.labels[i]
+
+
 def _loader(paths, labels, tf, shuffle, degrade=None, bs=32, workers=1):
     return DataLoader(LeafDataset(paths, labels, tf, degrade), batch_size=bs, shuffle=shuffle,
                       num_workers=workers, persistent_workers=workers > 0)
@@ -71,8 +109,10 @@ def train(df, num_classes, epochs=10, out_name="mobilenetv2_best.pt", log=print)
     np.random.seed(SEED)
     torch.set_num_threads(os.cpu_count())
     tr, va = df[df.split == "train"], df[df.split == "val"]
-    tl = _loader(tr.path, tr.label, TRAIN_TF, True)
-    vl = _loader(va.path, va.label, EVAL_TF, False)
+    tl = DataLoader(CachedDataset(image_cache(list(tr.path), "train"), tr.label, TRAIN_TF_T),
+                    batch_size=32, shuffle=True, num_workers=0)
+    vl = DataLoader(CachedDataset(image_cache(list(va.path), "val"), va.label, EVAL_TF_T),
+                    batch_size=64, shuffle=False, num_workers=0)
 
     model = build_mobilenetv2(num_classes, PRETRAINED_MNV2)
     head = list(model.classifier.parameters())

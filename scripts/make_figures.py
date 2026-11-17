@@ -189,22 +189,25 @@ def fig_confusion(y, pred, classes, name, title):
     save(fig, name)
 
 
-def fig_per_class(y, p_svm, p_cnn, classes):
+def fig_per_class(y, p_svm, p_cnn, classes, compact=False):
     f_svm = f1_score(y, p_svm, average=None, labels=range(len(classes)))
     f_cnn = f1_score(y, p_cnn, average=None, labels=range(len(classes)))
     order = np.argsort(f_svm)
-    fig, ax = plt.subplots(figsize=(7.2, 6.0))
+    fig, ax = plt.subplots(figsize=(3.5, 6.2) if compact else (7.2, 6.0))
     yy = np.arange(len(classes))
     ax.barh(yy - 0.2, f_svm[order] * 100, 0.4, color=C_CLASSIC, label="Classical DIP + SVM")
     ax.barh(yy + 0.2, f_cnn[order] * 100, 0.4, color=C_CNN, label="MobileNetV2")
-    ax.set_yticks(yy, [pretty(classes[i]) for i in order], fontsize=6)
+    ax.set_yticks(yy, [pretty(classes[i]).replace("Two-spotted spider mite", "").replace(" Gray leaf spot", "")
+                       .replace("(Isariopsis Leaf Spot)", "").replace("(Citrus greening)", "").replace("(Black Measles)", "")
+                       for i in order], fontsize=5.5 if compact else 6)
     ax.set_xlabel("Per-class F1 (%)")
+    ax.set_ylim(-0.7, len(classes) - 0.3)
     ax.set_xlim(min(50, (f_svm.min() * 100) // 10 * 10), 100.5)
-    ax.legend(frameon=False, loc="lower right")
-    save(fig, "fig_per_class_f1.png")
+    ax.legend(frameon=False, loc="lower center", bbox_to_anchor=(0.4, 1.0), ncol=2, fontsize=7 if compact else 9)
+    save(fig, "fig_per_class_f1_col.png" if compact else "fig_per_class_f1.png")
 
 
-def fig_robustness(res):
+def fig_robustness(res, compact=False):
     rob = pd.DataFrame(res["robustness"])
     cnn = []
     for tag in ["clean", "gaussian_noise", "gaussian_blur", "low_light", "uneven_illumination"]:
@@ -215,7 +218,7 @@ def fig_robustness(res):
     names = {"clean": "Clean", "gaussian_noise": "Gaussian\nnoise", "gaussian_blur": "Gaussian\nblur",
              "low_light": "Low\nlight", "uneven_illumination": "Uneven\nillumination"}
     piv = rob.pivot(index="degradation", columns="pipeline", values="macro_f1").loc[list(names)]
-    fig, ax = plt.subplots(figsize=(7.2, 2.5))
+    fig, ax = plt.subplots(figsize=(3.5, 2.7) if compact else (7.2, 2.5))
     x = np.arange(len(piv))
     series = [("without pre-processing", "#d9d9d9", "Classical, no pre-processing"),
               ("with pre-processing", C_CLASSIC, "Classical, with pre-processing"),
@@ -223,11 +226,15 @@ def fig_robustness(res):
     for i, (col, color, lab) in enumerate(series):
         ax.bar(x + (i - 1) * 0.27, piv[col] * 100, 0.27, color=color, label=lab, edgecolor="white")
         for xx, v in zip(x, piv[col]):
-            ax.text(xx + (i - 1) * 0.27, v * 100 + 1, f"{v * 100:.0f}", ha="center", fontsize=6)
-    ax.set_xticks(x, [names[k] for k in piv.index])
+            ax.text(xx + (i - 1) * 0.27, v * 100 + 1, f"{v * 100:.0f}", ha="center", fontsize=5 if compact else 6)
+    ax.set_xticks(x, [names[k] for k in piv.index], fontsize=6.5 if compact else 9)
     ax.set_ylabel("Test macro-F1 (%)")
     ax.set_ylim(0, 110)
-    ax.legend(frameon=False, ncol=3, fontsize=7, loc="upper center", bbox_to_anchor=(0.5, 1.18))
+    ax.legend(frameon=False, ncol=1 if compact else 3, fontsize=6.5 if compact else 7, loc="upper center",
+              bbox_to_anchor=(0.5, 1.32 if compact else 1.18))
+    if compact:
+        save(fig, "fig_robustness_col.png")
+        return
     save(fig, "fig_robustness.png")
     piv.to_csv(os.path.join(TABLE_DIR, "robustness_macro_f1.csv"))
 
@@ -297,6 +304,8 @@ def main():
     fig_confusion(y, p_svm, classes, "fig_confusion_svm.png", f"Classical pipeline (SVM, {best})")
     fig_confusion(y, p_cnn, classes, "fig_confusion_cnn.png", "MobileNetV2 (fine-tuned)")
     fig_per_class(y, p_svm, p_cnn, classes)
+    fig_per_class(y, p_svm, p_cnn, classes, compact=True)
+    fig_robustness(res, compact=True)
     fig_robustness(res)
 
 
