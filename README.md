@@ -44,23 +44,10 @@ RGB leaf ─► Pre-processing ─► Leaf segmentation ─► Lesion segmentati
 ```
 Project_Safe_Gardens/
 ├── notebooks/
-│   └── Safe_Gardens_Pipeline.ipynb   ← main deliverable: full pipeline, step by step, with outputs
-├── src/                              ← reusable, documented modules
-│   ├── config.py                     paths and parameters
-│   ├── data.py                       dataset index + stratified 70/15/15 split
-│   ├── preprocessing.py              Gaussian, bilateral, CLAHE, synthetic degradations
-│   ├── segmentation.py               Otsu / K-means leaf masks, lesion mask, morphology, IoU/Dice
-│   ├── features.py                   colour moments, GLCM, LBP, shape, HOG
-│   ├── cnn.py                        MobileNetV2 fine-tuning and inference
-│   └── mobilenetv2.py                MobileNetV2 architecture
-├── scripts/                          ← command-line versions of each stage
-│   ├── download_dataset.py           reproducible PlantVillage subset (seed 42)
-│   ├── extract_features.py           features for all images / ablations / degradations
-│   ├── evaluate_segmentation.py      IoU & Dice vs. reference masks, lesion-ratio analysis
-│   ├── train_classical.py            SVM & Random Forest experiments (E1–E3)
-│   ├── train_cnn.py                  MobileNetV2 training + robustness evaluation
-│   ├── make_figures.py               every figure in the paper
-│   └── collect_numbers.py            summary of all reported numbers
+│   └── Safe_Gardens_Pipeline.ipynb   ← complete implementation, executed with all outputs:
+│                                       setup · dataset download & split · pre-processing ·
+│                                       segmentation & morphology · feature extraction ·
+│                                       SVM / Random Forest · MobileNetV2 · evaluation & figures
 ├── models/                           trained SVM and MobileNetV2 weights
 ├── results/
 │   ├── figures/                      all plots (PNG, 300 dpi)
@@ -131,16 +118,10 @@ Project_Safe_Gardens/
 
 ```bash
 pip install -r requirements.txt
-python scripts/download_dataset.py --per-class 300 --seg-per-class 15    # ~1 min
-# MobileNetV2 ImageNet weights -> data/weights/ (see data/README.md)
-python scripts/extract_features.py        # ~25 min on 2 CPU cores
-python scripts/evaluate_segmentation.py
-python scripts/train_classical.py
-python scripts/train_cnn.py --epochs 8    # ~75 min on CPU, minutes on a GPU
-python scripts/make_figures.py
+jupyter notebook notebooks/Safe_Gardens_Pipeline.ipynb
 ```
 
-Or open `notebooks/Safe_Gardens_Pipeline.ipynb` and run all cells (cached results are reused; set the `RECOMPUTE_*` / `RETRAIN_*` flags to recompute).
+Run all cells. The first run needs the data: set `DOWNLOAD_DATA = True` in the setup cell (≈1 min) and place the MobileNetV2 ImageNet weights in `data/weights/` (see `data/README.md`). Cached features, models and results are reused; set `RECOMPUTE_FEATURES`, `RECOMPUTE_SEG_EVAL`, `RETRAIN_CLASSICAL` and `RETRAIN_CNN` to `True` to recompute everything (≈ 2 h on a 2-core CPU).
 
 ## Dataset
 
